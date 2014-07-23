@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 import re
 import random
 import pickle
+from anjuke import pinyin
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -125,6 +126,24 @@ def hosts():
 def test():
     return 'test'
 
+
+@app.route('/welcome')
+def welcome():
+    try:
+        name = request.args.get('name','')
+        converter = pinyin.Converter()
+        pinyin_name = converter.convert(name)
+        pys = pinyin_name.split(' ')
+        short_pinyin_name = pys[0]
+        for py in pys[1:]:
+            short_pinyin_name += py[0]
+        welcome_string = u'%s同学好，大家好，</br>最近我们组迎来了%s同学，欢迎他们加入我们温暖的大家庭！</br>%s同学的组内邮箱为： %s@nlp.nju.edu.cn<br>大家多联系，多关照。</br>如果有任何问题，请联系管理员程善伯chengsb@nlp.nju.edu.cn或朱长峰zhucf@nlp.nju.edu.cn。</br>另：组内为每位同学分配了一定资源，附件中为组内资源介绍。</br></br>祝好！</br></br>谢谢</br>善伯' % (name,name,name[1:],short_pinyin_name)
+        return welcome_string
+    except:
+        return "welcome"
+
+if __name__ == "__main__":
+    app.run()
 def get_random_song():
     with open('static/songs.pickle') as f:
         songs = pickle.load(f)
